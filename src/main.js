@@ -17,7 +17,8 @@ const createWindow = () => {
       contextIsolation: false,
       // Disable web security and CSP (not recommended for production)
       webSecurity: false,
-      allowRunningInsecureContent: true
+      allowRunningInsecureContent: true,
+      devTools: process.env.NODE_ENV !== 'production' 
     },
   });
 

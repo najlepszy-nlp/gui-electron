@@ -77,7 +77,6 @@ function App() {
       async function fetchData() {
         try {
           const data = await readCSVFile();
-          console.log(data);
           setWorldsCities(data);
         } catch (error) {
           console.error('Error fetching CSV data:', error);

@@ -9,8 +9,9 @@ import { Event } from "./components/Event.jsx";
 import { RMap, ROSM, RLayerVector, RFeature, RControl, RStyle } from "rlayers";
 import locationIcon from './components/map-marker.png';
 import { DataDisplay } from "./components/DataDisplay.jsx";
-import { FluentProvider, Text, webDarkTheme } from "@fluentui/react-components";
+import { Button, FluentProvider, Input, Text, webDarkTheme } from "@fluentui/react-components";
 import { Filters } from "./components/Filters.jsx";
+import axios from "axios";
 
 const EVENT_MOCK_DATA = [
   {
@@ -23,23 +24,13 @@ const EVENT_MOCK_DATA = [
     "injured": 10,
     "sequenceOfActions": ["Bus was overtaking another vehicle", "Auto-rickshaw was crossing the road", "Collision occurred"],
     "reasonOfAccident": "Reckless overtaking",
-  },{
-    "place": "Delhi",
-    "date": "2022-03-01",
-    "time": "Around midday",
-    "vehicles": ["Bus", "Auto-rickshaw"],
-    "casualties": 5,
-    "ageOfCasualties": [32, 45, 27, 50, 19],
-    "injured": 10,
-    "sequenceOfActions": ["Bus was overtaking another vehicle", "Auto-rickshaw was crossing the road", "Collision occurred"],
-    "reasonOfAccident": "Reckless overtaking",
   },
 ];
 
 const coords = {
-  origin: [90.407608, 23.811056],
+  origin: [90.3889, 23.7639],
 }
-const center = fromLonLat([90.407608, 23.811056]);
+const center = fromLonLat([90.3889, 23.7639]);
 
 async function readCSVFile() {
   try {
@@ -59,6 +50,9 @@ async function readCSVFile() {
 function App() {
 
   const [chosenEvent, setChosenEvent] = useState(-1);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [markersData, setMarkersData] = useState([]);
 
   const [selectedStartDate, setSelectedStartDate] = useState(null);
   const [selectedEndDate, setSelectedEndDate] = useState(null);
@@ -78,12 +72,22 @@ function App() {
         try {
           const data = await readCSVFile();
           setWorldsCities(data);
+          const backendData = await axios.get('http://localhost:8080/data');
+          setMarkersData(backendData.data);
         } catch (error) {
           console.error('Error fetching CSV data:', error);
         }
       }
       fetchData();
     }, []);
+
+    const submitSearching = async() => {
+      if(currentPage >= 1){
+        const backendData = await axios.get(`http://localhost:8080/data?skip=${(currentPage-1)}`);
+        setMarkersData(backendData.data);
+        setChosenEvent(-1);
+      }
+    };
 
   return (
     <FluentProvider theme={webDarkTheme}>
@@ -99,7 +103,7 @@ function App() {
               />
             </div>
             <section>
-              {EVENT_MOCK_DATA.map((elem, ind) => dateFilter(new Date(elem.date)) && (
+              {markersData.map((elem, ind) => dateFilter(new Date(elem.date)) && (
                 <Event 
                   {...elem} 
                   clickCallback={() => setChosenEvent(ind)}
@@ -107,6 +111,11 @@ function App() {
                 />)
               )}
             </section>
+            <div className="pager">
+              <Input type="number" min={1} value={currentPage} 
+                onChange={(e) => setCurrentPage(Number(e.currentTarget.value))} />
+              <Button onClick={() => submitSearching()}>Search</Button>
+            </div>
           </nav>
           <div>
             <RMap 
@@ -119,20 +128,20 @@ function App() {
               <RControl.RZoom />
               <RControl.RZoomSlider />
 
-              <RLayerVector zIndex={10}>
+              {markersData.map((elem, index) => (<RLayerVector zIndex={10}>
                 <RStyle.RStyle>
                   <RStyle.RIcon src={locationIcon} anchor={[0.5, 0.8]} />
                 </RStyle.RStyle>
                 <RFeature
-                    geometry={new Point(fromLonLat(coords.origin))}
-                    onClick={(e) => setChosenEvent(0)}
+                    geometry={new Point(fromLonLat([elem.place.lng, elem.place.lat]))}
+                    onClick={(e) => setChosenEvent(index)}
                 >
                 </RFeature>
-              </RLayerVector>
+              </RLayerVector>))}
             </RMap>
             {
               chosenEvent !== -1 && (
-                <DataDisplay eventData={EVENT_MOCK_DATA[chosenEvent]} />
+                <DataDisplay eventData={markersData[chosenEvent]} />
               )
             }
           </div>

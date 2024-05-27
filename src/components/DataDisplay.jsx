@@ -1,24 +1,24 @@
-import { Accordion, AccordionHeader, AccordionItem, AccordionPanel, Text } from "@fluentui/react-components";
+import { Accordion, AccordionHeader, AccordionItem, AccordionPanel, Text, tokens } from "@fluentui/react-components";
 import React from "react";
 
 export const DataDisplay = ({
     eventData
-}) => (<div className="display-wrapper">
+}) => (<div className="display-wrapper" style={{backgroundColor: tokens.colorNeutralForeground2BrandSelected}}>
     <Text className="display-info">
-        Place: {eventData.place}
+        Place: {eventData.place.name}
     </Text>
     <Text className="display-info">
         Date: {eventData.date}
     </Text>
     <Text className="display-info">
-        Time: {eventData.time}
+        Time: {eventData.time ?? 'Unknown'}
     </Text>
 
     <Text className="display-info">
         Reason of the accident: {eventData.reasonOfAccident}
     </Text>
     <Text className="display-info">
-        Action sequence: {eventData.sequenceOfActions.join(' > ')}
+        Action sequence: {eventData.sequenceOfEvents.join(' > ')}
     </Text>
     {eventData.vehicles.length > 0 && <Text className="display-info">
         Vehicles: {eventData.vehicles.join(', ')}

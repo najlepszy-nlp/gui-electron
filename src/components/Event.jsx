@@ -6,10 +6,11 @@ export const Event = ({
     place,
     clickCallback,
     ind,
-}) => (<div className={ind % 2 === 0 ? 'event-wrapper' : 'event-wrapper light-bg'}>
+}) => (<div className={ind % 2 === 0 ? 
+'event-wrapper' : 'event-wrapper light-bg'}>
     <div>
         <Text>
-            {place.length > 15 ? place.substring(0, 12)+'...' : place}
+            {place.name.length > 15 ? place.name.substring(0, 12)+'...' : place.name}
         </Text>
     </div>
     <FullscreenIcon onClick={clickCallback} style={{color: 'inherit'}} className="opening-icon" />

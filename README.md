@@ -4,6 +4,8 @@ This application is the GUI part of the INLP project built by Szymon Kupisz, Jak
 
 ## How to run the GUI part?
 
+At first, make sure that the backend of the application is up. To do so, perform the contenerization steps in the backend's instructions and run `docker compose up`
+
 Development way:
 
 * Download this project on your machine
